@@ -22,10 +22,10 @@ const startVideo = () => {
 }
 
 const loadLabels = () => {
-    const labels = ['Yuri']
+    const labels = ['Gestor Yuri']
     return Promise.all(labels.map(async label => {
         const descriptions = []
-        for (let i = 1; i <= 2; i++) {
+        for (let i = 2; i <= 2; i++) {
             const img = await faceapi.fetchImage(`/assets/lib/face-api/labels/${label}/${i}.jpg`)
             const detections = await faceapi
                 .detectSingleFace(img)
@@ -74,20 +74,34 @@ cam.addEventListener('play', async () => {
         faceapi.draw.drawDetections(canvas, resizedDetections)
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
         faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
+       
         resizedDetections.forEach(detection => {
             const { age, gender, genderProbability } = detection
+            
             new faceapi.draw.DrawTextField([
-                `${parseInt(age, 10)} years`,
-                `${gender} (${parseInt(genderProbability * 100, 10)})`
+                `${parseInt(age, 10)} Idade`,
+                `${gender == 'male' ? 'Homem' : 'Mulher'} (${parseInt(genderProbability * 100, 10)}%)`
             ], detection.detection.box.topRight).draw(canvas)
-        })
-        results.forEach((result, index) => {
-            const box = resizedDetections[index].detection.box
-            const { label, distance } = result
-            new faceapi.draw.DrawTextField([
-                `${label} (${parseInt(distance * 100, 10)})`
-                
-            ], box.bottomRight).draw(canvas)
-        })
+
+
+            results.forEach((result, index) => {
+                const box = resizedDetections[index].detection.box
+                const { label, distance } = result
+                new faceapi.draw.DrawTextField([
+                    `${label == 'Gestor Yuri' ? 'Gestor: Yuri' : 'Pessoa desconhecida'} (${parseInt(distance * 100, 10)}%)`             
+                ], box.bottomRight).draw(canvas)
+            
+
+            if(parseInt(age, 10) >= 15 && parseInt(age, 10) <= 25) {
+                if(gender == 'male' && label == 'Gestor Yuri') {
+                    console.log('Cadastro feito com sucesso')    
+                }
+            } else {
+                console.log('Cadastro negado')
+            }
+
+        })  
+    })
+        
     }, 100)
 })
